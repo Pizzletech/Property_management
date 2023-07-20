@@ -1,0 +1,810 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <link rel="stylesheet" href="css/leaflet.css">
+        <link rel="stylesheet" href="css/qgis2web.css"><link rel="stylesheet" href="css/fontawesome-all.min.css">
+        <link rel="stylesheet" href="css/filter.css">
+<link rel="stylesheet" href="css/nouislider.min.css">
+        <link rel="stylesheet" href="css/leaflet-control-geocoder.Geocoder.css">
+        <style>
+        #map {
+            width: 850px;
+            height: 501px;
+        }
+        </style>
+        <title>Property Management (Hostels)</title>
+    </head>
+    <body>
+        <div id="map">
+        </div>
+        <script src="js/qgis2web_expressions.js"></script>
+        <script src="js/leaflet.js"></script>
+        <script src="js/multi-style-layer.js"></script>
+        <script src="js/leaflet.rotatedMarker.js"></script>
+        <script src="js/leaflet.pattern.js"></script>
+        <script src="js/leaflet-hash.js"></script>
+        <script src="js/Autolinker.min.js"></script>
+        <script src="js/rbush.min.js"></script>
+        <script src="js/labelgun.min.js"></script>
+        <script src="js/labels.js"></script>
+        <script src="js/leaflet-control-geocoder.Geocoder.js"></script>
+        <script src="js/proj4.js"></script>
+        <script src="js/proj4leaflet.js"></script>
+        <script src="js/tailDT.js"></script>
+<script src="js/nouislider.min.js"></script>
+<script src="js/wNumb.js"></script>
+        <script src="data/PARCELS_1.js"></script>
+        <script src="data/BOUNDRY_2.js"></script>
+        <script src="data/Buildings_3.js"></script>
+        <script src="data/WATERRESERVOIR_4.js"></script>
+        <script>
+        var highlightLayer;
+        function highlightFeature(e) {
+            highlightLayer = e.target;
+            highlightLayer.openPopup();
+        }
+        var crs = new L.Proj.CRS('EPSG:26331', '+proj=utm +zone=31 +a=6378249.145 +rf=293.465 +units=m +no_defs', {
+            resolutions: [2800, 1400, 700, 350, 175, 84, 42, 21, 11.2, 5.6, 2.8, 1.4, 0.7, 0.35, 0.14, 0.07],
+        });
+        var map = L.map('map', {
+            crs: crs,
+            continuousWorld: false,
+            worldCopyJump: false, 
+            zoomControl:true, maxZoom:28, minZoom:1
+        }).fitBounds([[7.482893405821351,4.517830695910928],[7.494308267856074,4.537192606745008]]);
+        var hash = new L.Hash(map);
+        map.attributionControl.setPrefix('<a href="https://github.com/tomchadwin/qgis2web" target="_blank">qgis2web</a> &middot; <a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> &middot; <a href="https://qgis.org">QGIS</a>');
+        var autolinker = new Autolinker({truncate: {length: 30, location: 'smart'}});
+        var bounds_group = new L.featureGroup([]);
+        function setBounds() {
+        }
+        map.createPane('pane_Positronnolabelsretina_0');
+        map.getPane('pane_Positronnolabelsretina_0').style.zIndex = 400;
+        var layer_Positronnolabelsretina_0 = L.tileLayer('https://a.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}@2x.png', {
+            pane: 'pane_Positronnolabelsretina_0',
+            opacity: 1.0,
+            attribution: '<a href="https://cartodb.com/basemaps/">Map tiles by CartoDB, under CC BY 3.0. Data by OpenStreetMap, under ODbL.</a>',
+            minZoom: 1,
+            maxZoom: 28,
+            minNativeZoom: 0,
+            maxNativeZoom: 20
+        });
+        layer_Positronnolabelsretina_0;
+        map.addLayer(layer_Positronnolabelsretina_0);
+        function pop_PARCELS_1(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    if (typeof layer.closePopup == 'function') {
+                        layer.closePopup();
+                    } else {
+                        layer.eachLayer(function(feature){
+                            feature.closePopup()
+                        });
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">C_of_O</th>\
+                        <td>' + (feature.properties['C_of_O'] !== null ? autolinker.link(feature.properties['C_of_O'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Property Owner</th>\
+                        <td>' + (feature.properties['NAME_ALLOT'] !== null ? autolinker.link(feature.properties['NAME_ALLOT'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Allocation Date</th>\
+                        <td>' + (feature.properties['DATE_OF_AL'] !== null ? autolinker.link(feature.properties['DATE_OF_AL'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Deed of Agreement</th>\
+                        <td>' + (feature.properties['DEED_OF_AS'] !== null ? autolinker.link(feature.properties['DEED_OF_AS'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Building Plan</th>\
+                        <td>' + (feature.properties['BLD_PLAN_A'] !== null ? autolinker.link(feature.properties['BLD_PLAN_A'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Ownership Transfer</th>\
+                        <td>' + (feature.properties['TRASFER_TO'] !== null ? autolinker.link(feature.properties['TRASFER_TO'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Parcel Class</th>\
+                        <td>' + (feature.properties['PARCEL_STU'] !== null ? autolinker.link(feature.properties['PARCEL_STU'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Parcel class</th>\
+                        <td>' + (feature.properties['PARCEL_USE'] !== null ? autolinker.link(feature.properties['PARCEL_USE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+        }
+
+        function style_PARCELS_1_0() {
+            return {
+                pane: 'pane_PARCELS_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,225,211,1.0)',
+                interactive: true,
+            }
+        }
+        map.createPane('pane_PARCELS_1');
+        map.getPane('pane_PARCELS_1').style.zIndex = 401;
+        map.getPane('pane_PARCELS_1').style['mix-blend-mode'] = 'normal';
+        var layer_PARCELS_1 = new L.geoJson(json_PARCELS_1, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_PARCELS_1',
+            layerName: 'layer_PARCELS_1',
+            pane: 'pane_PARCELS_1',
+            onEachFeature: pop_PARCELS_1,
+            style: style_PARCELS_1_0,
+        });
+        bounds_group.addLayer(layer_PARCELS_1);
+        map.addLayer(layer_PARCELS_1);
+        function pop_BOUNDRY_2(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    if (typeof layer.closePopup == 'function') {
+                        layer.closePopup();
+                    } else {
+                        layer.eachLayer(function(feature){
+                            feature.closePopup()
+                        });
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Id'] !== null ? autolinker.link(feature.properties['Id'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+        }
+
+        function style_BOUNDRY_2_0() {
+            return {
+                pane: 'pane_BOUNDRY_2',
+                opacity: 1,
+                color: 'rgba(162,4,7,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 4.0,
+                fillOpacity: 0,
+                interactive: false,
+            }
+        }
+        map.createPane('pane_BOUNDRY_2');
+        map.getPane('pane_BOUNDRY_2').style.zIndex = 402;
+        map.getPane('pane_BOUNDRY_2').style['mix-blend-mode'] = 'normal';
+        var layer_BOUNDRY_2 = new L.geoJson(json_BOUNDRY_2, {
+            attribution: '',
+            interactive: false,
+            dataVar: 'json_BOUNDRY_2',
+            layerName: 'layer_BOUNDRY_2',
+            pane: 'pane_BOUNDRY_2',
+            onEachFeature: pop_BOUNDRY_2,
+            style: style_BOUNDRY_2_0,
+        });
+        bounds_group.addLayer(layer_BOUNDRY_2);
+        map.addLayer(layer_BOUNDRY_2);
+        function pop_Buildings_3(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    if (typeof layer.closePopup == 'function') {
+                        layer.closePopup();
+                    } else {
+                        layer.eachLayer(function(feature){
+                            feature.closePopup()
+                        });
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">Building Class </th>\
+                        <td>' + (feature.properties['Purpose'] !== null ? autolinker.link(feature.properties['Purpose'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Building Type</th>\
+                        <td>' + (feature.properties['Type'] !== null ? autolinker.link(feature.properties['Type'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Hostel Manager</th>\
+                        <td>' + (feature.properties['Caretaker'] !== null ? autolinker.link(feature.properties['Caretaker'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Hostel Name</th>\
+                        <td>' + (feature.properties['Name'] !== null ? autolinker.link(feature.properties['Name'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Electricty Type</th>\
+                        <td>' + (feature.properties['Elect'] !== null ? autolinker.link(feature.properties['Elect'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Rent/Anum</th>\
+                        <td>' + (feature.properties['Rent #'] !== null ? autolinker.link(feature.properties['Rent #'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Water Type</th>\
+                        <td>' + (feature.properties['Water'] !== null ? autolinker.link(feature.properties['Water'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Availability</th>\
+                        <td>' + (feature.properties['Status'] !== null ? autolinker.link(feature.properties['Status'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Manager Contact</th>\
+                        <td>' + (feature.properties['Phone_NO'] !== null ? autolinker.link(feature.properties['Phone_NO'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Rent Range</th>\
+                        <td>' + (feature.properties['Rent'] !== null ? autolinker.link(feature.properties['Rent'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">C_of_O</th>\
+                        <td>' + (feature.properties['C_of_O'] !== null ? autolinker.link(feature.properties['C_of_O'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Propety Owner</th>\
+                        <td>' + (feature.properties['NAME_ALLOT'] !== null ? autolinker.link(feature.properties['NAME_ALLOT'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Year Built</th>\
+                        <td>' + (feature.properties['DATE_OF_AL'] !== null ? autolinker.link(feature.properties['DATE_OF_AL'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+        }
+
+        function style_Buildings_3_0(feature) {
+            switch(String(feature.properties['Purpose'])) {
+                case 'Commercial':
+                    return {
+                pane: 'pane_Buildings_3',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(69,212,69,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'Residential':
+                    return {
+                pane: 'pane_Buildings_3',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(225,85,47,1.0)',
+                interactive: true,
+            }
+                    break;
+            }
+        }
+        map.createPane('pane_Buildings_3');
+        map.getPane('pane_Buildings_3').style.zIndex = 403;
+        map.getPane('pane_Buildings_3').style['mix-blend-mode'] = 'normal';
+        var layer_Buildings_3 = new L.geoJson(json_Buildings_3, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_Buildings_3',
+            layerName: 'layer_Buildings_3',
+            pane: 'pane_Buildings_3',
+            onEachFeature: pop_Buildings_3,
+            style: style_Buildings_3_0,
+        });
+        bounds_group.addLayer(layer_Buildings_3);
+        map.addLayer(layer_Buildings_3);
+        function pop_WATERRESERVOIR_4(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    if (typeof layer.closePopup == 'function') {
+                        layer.closePopup();
+                    } else {
+                        layer.eachLayer(function(feature){
+                            feature.closePopup()
+                        });
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">Structure</th>\
+                        <td>' + (feature.properties['PARCEL_PUR'] !== null ? autolinker.link(feature.properties['PARCEL_PUR'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+        }
+
+        function style_WATERRESERVOIR_4_0() {
+            return {
+                pane: 'pane_WATERRESERVOIR_4',
+                interactive: true,
+            }
+        }
+        function style_WATERRESERVOIR_4_1() {
+            return {
+                pane: 'pane_WATERRESERVOIR_4',
+                opacity: 1,
+                color: 'rgba(38,89,128,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fillOpacity: 0,
+                interactive: true,
+            }
+        }
+        map.createPane('pane_WATERRESERVOIR_4');
+        map.getPane('pane_WATERRESERVOIR_4').style.zIndex = 404;
+        map.getPane('pane_WATERRESERVOIR_4').style['mix-blend-mode'] = 'normal';
+        var layer_WATERRESERVOIR_4 = new L.geoJson.multiStyle(json_WATERRESERVOIR_4, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_WATERRESERVOIR_4',
+            layerName: 'layer_WATERRESERVOIR_4',
+            pane: 'pane_WATERRESERVOIR_4',
+            onEachFeature: pop_WATERRESERVOIR_4,
+            styles: [style_WATERRESERVOIR_4_0,style_WATERRESERVOIR_4_1,]
+        });
+        bounds_group.addLayer(layer_WATERRESERVOIR_4);
+        map.addLayer(layer_WATERRESERVOIR_4);
+            var title = new L.Control();
+            title.onAdd = function (map) {
+                this._div = L.DomUtil.create('div', 'info');
+                this.update();
+                return this._div;
+            };
+            title.update = function () {
+                this._div.innerHTML = '<h2>Property Management (Hostels)</h2>';
+            };
+            title.addTo(map);
+            var abstract = new L.Control({'position':'topright'});
+            abstract.onAdd = function (map) {
+                this._div = L.DomUtil.create('div',
+                'leaflet-control abstract');
+                this._div.id = 'abstract'
+                    this._div.setAttribute("onmouseenter", "abstract.show()");
+                    this._div.setAttribute("onmouseleave", "abstract.hide()");
+                    this.hide();
+                    return this._div;
+                };
+                abstract.hide = function () {
+                    this._div.classList.remove("abstractUncollapsed");
+                    this._div.classList.add("abstract");
+                    this._div.innerHTML = 'i'
+                }
+                abstract.show = function () {
+                    this._div.classList.remove("abstract");
+                    this._div.classList.add("abstractUncollapsed");
+                    this._div.innerHTML = 'Are you an investor looking to build a property or a student in need of a hostel within Moremi Estate? This web map is specifically designed to assist you in making a well-informed decision. By utilizing the features of this map, you can explore and analyze various factors that may impact your choice.';
+            };
+            abstract.addTo(map);
+        var osmGeocoder = new L.Control.Geocoder({
+            collapsed: true,
+            position: 'topleft',
+            text: 'Search',
+            title: 'Testing'
+        }).addTo(map);
+        document.getElementsByClassName('leaflet-control-geocoder-icon')[0]
+        .className += ' fa fa-search';
+        document.getElementsByClassName('leaflet-control-geocoder-icon')[0]
+        .title += 'Search for a place';
+        setBounds();
+        var mapDiv = document.getElementById('map');
+        var row = document.createElement('div');
+        row.className="row";
+        row.id="all";
+        row.style.height = "100%";
+        var col1 = document.createElement('div');
+        col1.className="col9";
+        col1.id = "mapWindow";
+        col1.style.height = "99%";
+        col1.style.width = "80%";
+        col1.style.display = "inline-block";
+        var col2 = document.createElement('div');
+        col2.className="col3";
+        col2.id = "menu";
+        col2.style.display = "inline-block";
+        mapDiv.parentNode.insertBefore(row, mapDiv);
+        document.getElementById("all").appendChild(col1);
+        document.getElementById("all").appendChild(col2);
+        col1.appendChild(mapDiv)
+        var Filters = {"Rent #": "real","Rent": "real","PARCEL_STU": "str","Water": "str","Name": "str","Elect": "str","BLD_PLAN_A": "str","Purpose": "str"};
+        function filterFunc() {
+          map.eachLayer(function(lyr){
+          if ("options" in lyr && "dataVar" in lyr["options"]){
+            features = this[lyr["options"]["dataVar"]].features.slice(0);
+            try{
+              for (key in Filters){
+                keyS = key.replace(/[^a-zA-Z0-9_]/g, "")
+                if (Filters[key] == "str" || Filters[key] == "bool"){
+                  var selection = [];
+                  var options = document.getElementById("sel_" + keyS).options
+                  for (var i=0; i < options.length; i++) {
+                    if (options[i].selected) selection.push(options[i].value);
+                  }
+                    try{
+                      if (key in features[0].properties){
+                        for (i = features.length - 1;
+                          i >= 0; --i){
+                          if (selection.indexOf(
+                          features[i].properties[key])<0
+                          && selection.length>0) {
+                          features.splice(i,1);
+                          }
+                        }
+                      }
+                    } catch(err){
+                  }
+                }
+                if (Filters[key] == "int"){
+                  sliderVals =  document.getElementById(
+                    "div_" + keyS).noUiSlider.get();
+                  try{
+                    if (key in features[0].properties){
+                    for (i = features.length - 1; i >= 0; --i){
+                      if (parseInt(features[i].properties[key])
+                          < sliderVals[0]
+                          || parseInt(features[i].properties[key])
+                          > sliderVals[1]){
+                            features.splice(i,1);
+                          }
+                        }
+                      }
+                    } catch(err){
+                    }
+                  }
+                if (Filters[key] == "real"){
+                  sliderVals =  document.getElementById(
+                    "div_" + keyS).noUiSlider.get();
+                  try{
+                    if (key in features[0].properties){
+                    for (i = features.length - 1; i >= 0; --i){
+                      if (features[i].properties[key]
+                          < sliderVals[0]
+                          || features[i].properties[key]
+                          > sliderVals[1]){
+                            features.splice(i,1);
+                          }
+                        }
+                      }
+                    } catch(err){
+                    }
+                  }
+                if (Filters[key] == "date"
+                  || Filters[key] == "datetime"
+                  || Filters[key] == "time"){
+                  try{
+                    if (key in features[0].properties){
+                      HTMLkey = key.replace(/[&\/\\#,+()$~%.'":*?<>{} ]/g, '');
+                      startdate = document.getElementById("dat_" +
+                        HTMLkey + "_date1").value.replace(" ", "T");
+                      enddate = document.getElementById("dat_" +
+                        HTMLkey + "_date2").value.replace(" ", "T");
+                      for (i = features.length - 1; i >= 0; --i){
+                        if (features[i].properties[key] < startdate
+                          || features[i].properties[key] > enddate){
+                          features.splice(i,1);
+                        }
+                      }
+                    }
+                  } catch(err){
+                  }
+                }
+              }
+            } catch(err){
+            }
+          this[lyr["options"]["layerName"]].clearLayers();
+          this[lyr["options"]["layerName"]].addData(features);
+          }
+          })
+        }
+            document.getElementById("menu").appendChild(
+                document.createElement("div"));
+            var div_Rent = document.createElement("div");
+            div_Rent.id = "div_Rent";
+            div_Rent.className = "slider";
+            document.getElementById("menu").appendChild(div_Rent);
+            var lab_Rent = document.createElement('div');
+            lab_Rent.innerHTML  = 'Rent #: <span id="val_Rent"></span>';
+            lab_Rent.className = 'filterlabel';
+            document.getElementById("menu").appendChild(lab_Rent);
+            var reset_Rent = document.createElement('div');
+            reset_Rent.innerHTML = 'clear filter';
+            reset_Rent.className = 'filterlabel';
+            lab_Rent.className = 'filterlabel';
+            reset_Rent.onclick = function() {
+                sel_Rent.noUiSlider.reset();
+            };
+            document.getElementById("menu").appendChild(reset_Rent);
+            var sel_Rent = document.getElementById('div_Rent');
+            noUiSlider.create(sel_Rent, {
+                connect: true,
+                start: [40000.0, 450000.0],
+                range: {
+                min: 40000.0,
+                max: 450000.0
+                }
+            });
+            sel_Rent.noUiSlider.on('update', function (values) {
+            val_Rent = document.getElementById('val_Rent');
+            val_Rent.innerHTML = values.join(' - ');
+                filterFunc()
+            });
+            document.getElementById("menu").appendChild(
+                document.createElement("div"));
+            var div_Rent = document.createElement("div");
+            div_Rent.id = "div_Rent";
+            div_Rent.className = "slider";
+            document.getElementById("menu").appendChild(div_Rent);
+            var lab_Rent = document.createElement('div');
+            lab_Rent.innerHTML  = 'Rent: <span id="val_Rent"></span>';
+            lab_Rent.className = 'filterlabel';
+            document.getElementById("menu").appendChild(lab_Rent);
+            var reset_Rent = document.createElement('div');
+            reset_Rent.innerHTML = 'clear filter';
+            reset_Rent.className = 'filterlabel';
+            lab_Rent.className = 'filterlabel';
+            reset_Rent.onclick = function() {
+                sel_Rent.noUiSlider.reset();
+            };
+            document.getElementById("menu").appendChild(reset_Rent);
+            var sel_Rent = document.getElementById('div_Rent');
+            noUiSlider.create(sel_Rent, {
+                connect: true,
+                start: [40000.0, 450000.0],
+                range: {
+                min: 40000.0,
+                max: 450000.0
+                }
+            });
+            sel_Rent.noUiSlider.on('update', function (values) {
+            val_Rent = document.getElementById('val_Rent');
+            val_Rent.innerHTML = values.join(' - ');
+                filterFunc()
+            });
+            document.getElementById("menu").appendChild(
+                document.createElement("div"));
+            var div_PARCEL_STU = document.createElement('div');
+            div_PARCEL_STU.id = "div_PARCEL_STU";
+            div_PARCEL_STU.className= "filterselect";
+            document.getElementById("menu").appendChild(div_PARCEL_STU);
+            sel_PARCEL_STU = document.createElement('select');
+            sel_PARCEL_STU.multiple = true;
+            sel_PARCEL_STU.size = 4;
+            sel_PARCEL_STU.id = "sel_PARCEL_STU";
+            var PARCEL_STU_options_str = "<option value='' unselected></option>";
+            sel_PARCEL_STU.onchange = function(){filterFunc()};
+            PARCEL_STU_options_str  += '<option value="NULL">NULL</option>';
+            PARCEL_STU_options_str  += '<option value="DEVELOPED">DEVELOPED</option>';
+            PARCEL_STU_options_str  += '<option value="UNDER CONSTRUCTION">UNDER CONSTRUCTION</option>';
+            PARCEL_STU_options_str  += '<option value="UNDEVELOPED">UNDEVELOPED</option>';
+            sel_PARCEL_STU.innerHTML = PARCEL_STU_options_str;
+            div_PARCEL_STU.appendChild(sel_PARCEL_STU);
+            var lab_PARCEL_STU = document.createElement('div');
+            lab_PARCEL_STU.innerHTML = 'PARCEL_STU';
+            lab_PARCEL_STU.className = 'filterlabel';
+            div_PARCEL_STU.appendChild(lab_PARCEL_STU);
+            var reset_PARCEL_STU = document.createElement('div');
+            reset_PARCEL_STU.innerHTML = 'clear filter';
+            reset_PARCEL_STU.className = 'filterlabel';
+            reset_PARCEL_STU.onclick = function() {
+                var options = document.getElementById("sel_PARCEL_STU").options;
+                for (var i=0; i < options.length; i++) {
+                    options[i].selected = false;
+                }
+                filterFunc();
+            };
+            div_PARCEL_STU.appendChild(reset_PARCEL_STU);
+            document.getElementById("menu").appendChild(
+                document.createElement("div"));
+            var div_Water = document.createElement('div');
+            div_Water.id = "div_Water";
+            div_Water.className= "filterselect";
+            document.getElementById("menu").appendChild(div_Water);
+            sel_Water = document.createElement('select');
+            sel_Water.multiple = true;
+            sel_Water.size = 3;
+            sel_Water.id = "sel_Water";
+            var Water_options_str = "<option value='' unselected></option>";
+            sel_Water.onchange = function(){filterFunc()};
+            Water_options_str  += '<option value="NULL">NULL</option>';
+            Water_options_str  += '<option value="Bore hole">Bore hole</option>';
+            Water_options_str  += '<option value="Well water">Well water</option>';
+            sel_Water.innerHTML = Water_options_str;
+            div_Water.appendChild(sel_Water);
+            var lab_Water = document.createElement('div');
+            lab_Water.innerHTML = 'Water';
+            lab_Water.className = 'filterlabel';
+            div_Water.appendChild(lab_Water);
+            var reset_Water = document.createElement('div');
+            reset_Water.innerHTML = 'clear filter';
+            reset_Water.className = 'filterlabel';
+            reset_Water.onclick = function() {
+                var options = document.getElementById("sel_Water").options;
+                for (var i=0; i < options.length; i++) {
+                    options[i].selected = false;
+                }
+                filterFunc();
+            };
+            div_Water.appendChild(reset_Water);
+            document.getElementById("menu").appendChild(
+                document.createElement("div"));
+            var div_Name = document.createElement('div');
+            div_Name.id = "div_Name";
+            div_Name.className= "filterselect";
+            document.getElementById("menu").appendChild(div_Name);
+            sel_Name = document.createElement('select');
+            sel_Name.multiple = true;
+            sel_Name.size = 10;
+            sel_Name.id = "sel_Name";
+            var Name_options_str = "<option value='' unselected></option>";
+            sel_Name.onchange = function(){filterFunc()};
+            Name_options_str  += '<option value="NULL">NULL</option>';
+            Name_options_str  += '<option value="Adekunle hostel">Adekunle hostel</option>';
+            Name_options_str  += '<option value="Beatrice hostel">Beatrice hostel</option>';
+            Name_options_str  += '<option value="Classic hostel">Classic hostel</option>';
+            Name_options_str  += '<option value="Evergreen villa">Evergreen villa</option>';
+            Name_options_str  += '<option value="Fine Touch hostel">Fine Touch hostel</option>';
+            Name_options_str  += '<option value="Flora hostel">Flora hostel</option>';
+            Name_options_str  += '<option value="Iyanu oluwa villa">Iyanu oluwa villa</option>';
+            Name_options_str  += '<option value="Jullie Bay villa">Jullie Bay villa</option>';
+            Name_options_str  += '<option value="Korede hostel">Korede hostel</option>';
+            Name_options_str  += '<option value="Lexa villa">Lexa villa</option>';
+            Name_options_str  += '<option value="Love hostel">Love hostel</option>';
+            Name_options_str  += '<option value="Loyal villa">Loyal villa</option>';
+            Name_options_str  += '<option value="Maye villa">Maye villa</option>';
+            Name_options_str  += '<option value="Moon hostel">Moon hostel</option>';
+            Name_options_str  += '<option value="Peace villa">Peace villa</option>';
+            Name_options_str  += '<option value="Peaches">Peaches</option>';
+            Name_options_str  += '<option value="Radeon villa">Radeon villa</option>';
+            Name_options_str  += '<option value="Soso hostel">Soso hostel</option>';
+            Name_options_str  += '<option value="Success City">Success City</option>';
+            Name_options_str  += '<option value="Sunshine villa">Sunshine villa</option>';
+            sel_Name.innerHTML = Name_options_str;
+            div_Name.appendChild(sel_Name);
+            var lab_Name = document.createElement('div');
+            lab_Name.innerHTML = 'Name';
+            lab_Name.className = 'filterlabel';
+            div_Name.appendChild(lab_Name);
+            var reset_Name = document.createElement('div');
+            reset_Name.innerHTML = 'clear filter';
+            reset_Name.className = 'filterlabel';
+            reset_Name.onclick = function() {
+                var options = document.getElementById("sel_Name").options;
+                for (var i=0; i < options.length; i++) {
+                    options[i].selected = false;
+                }
+                filterFunc();
+            };
+            div_Name.appendChild(reset_Name);
+            document.getElementById("menu").appendChild(
+                document.createElement("div"));
+            var div_Elect = document.createElement('div');
+            div_Elect.id = "div_Elect";
+            div_Elect.className= "filterselect";
+            document.getElementById("menu").appendChild(div_Elect);
+            sel_Elect = document.createElement('select');
+            sel_Elect.multiple = true;
+            sel_Elect.size = 3;
+            sel_Elect.id = "sel_Elect";
+            var Elect_options_str = "<option value='' unselected></option>";
+            sel_Elect.onchange = function(){filterFunc()};
+            Elect_options_str  += '<option value="NULL">NULL</option>';
+            Elect_options_str  += '<option value="Metered">Metered</option>';
+            Elect_options_str  += '<option value="Prepaid">Prepaid</option>';
+            sel_Elect.innerHTML = Elect_options_str;
+            div_Elect.appendChild(sel_Elect);
+            var lab_Elect = document.createElement('div');
+            lab_Elect.innerHTML = 'Elect';
+            lab_Elect.className = 'filterlabel';
+            div_Elect.appendChild(lab_Elect);
+            var reset_Elect = document.createElement('div');
+            reset_Elect.innerHTML = 'clear filter';
+            reset_Elect.className = 'filterlabel';
+            reset_Elect.onclick = function() {
+                var options = document.getElementById("sel_Elect").options;
+                for (var i=0; i < options.length; i++) {
+                    options[i].selected = false;
+                }
+                filterFunc();
+            };
+            div_Elect.appendChild(reset_Elect);
+            document.getElementById("menu").appendChild(
+                document.createElement("div"));
+            var div_BLD_PLAN_A = document.createElement('div');
+            div_BLD_PLAN_A.id = "div_BLD_PLAN_A";
+            div_BLD_PLAN_A.className= "filterselect";
+            document.getElementById("menu").appendChild(div_BLD_PLAN_A);
+            sel_BLD_PLAN_A = document.createElement('select');
+            sel_BLD_PLAN_A.multiple = true;
+            sel_BLD_PLAN_A.size = 7;
+            sel_BLD_PLAN_A.id = "sel_BLD_PLAN_A";
+            var BLD_PLAN_A_options_str = "<option value='' unselected></option>";
+            sel_BLD_PLAN_A.onchange = function(){filterFunc()};
+            BLD_PLAN_A_options_str  += '<option value="NULL">NULL</option>';
+            BLD_PLAN_A_options_str  += '<option value="APPROVED">APPROVED</option>';
+            BLD_PLAN_A_options_str  += '<option value="FENCE APPROVED">FENCE APPROVED</option>';
+            BLD_PLAN_A_options_str  += '<option value="FENCE PLAN APPROVED">FENCE PLAN APPROVED</option>';
+            BLD_PLAN_A_options_str  += '<option value="FENCE PLAN PROCESSING">FENCE PLAN PROCESSING</option>';
+            BLD_PLAN_A_options_str  += '<option value="NOT APPROVED">NOT APPROVED</option>';
+            BLD_PLAN_A_options_str  += '<option value="UNDER PROCESSING">UNDER PROCESSING</option>';
+            sel_BLD_PLAN_A.innerHTML = BLD_PLAN_A_options_str;
+            div_BLD_PLAN_A.appendChild(sel_BLD_PLAN_A);
+            var lab_BLD_PLAN_A = document.createElement('div');
+            lab_BLD_PLAN_A.innerHTML = 'BLD_PLAN_A';
+            lab_BLD_PLAN_A.className = 'filterlabel';
+            div_BLD_PLAN_A.appendChild(lab_BLD_PLAN_A);
+            var reset_BLD_PLAN_A = document.createElement('div');
+            reset_BLD_PLAN_A.innerHTML = 'clear filter';
+            reset_BLD_PLAN_A.className = 'filterlabel';
+            reset_BLD_PLAN_A.onclick = function() {
+                var options = document.getElementById("sel_BLD_PLAN_A").options;
+                for (var i=0; i < options.length; i++) {
+                    options[i].selected = false;
+                }
+                filterFunc();
+            };
+            div_BLD_PLAN_A.appendChild(reset_BLD_PLAN_A);
+            document.getElementById("menu").appendChild(
+                document.createElement("div"));
+            var div_Purpose = document.createElement('div');
+            div_Purpose.id = "div_Purpose";
+            div_Purpose.className= "filterselect";
+            document.getElementById("menu").appendChild(div_Purpose);
+            sel_Purpose = document.createElement('select');
+            sel_Purpose.multiple = true;
+            sel_Purpose.size = 2;
+            sel_Purpose.id = "sel_Purpose";
+            var Purpose_options_str = "<option value='' unselected></option>";
+            sel_Purpose.onchange = function(){filterFunc()};
+            Purpose_options_str  += '<option value="Commercial">Commercial</option>';
+            Purpose_options_str  += '<option value="Residential">Residential</option>';
+            sel_Purpose.innerHTML = Purpose_options_str;
+            div_Purpose.appendChild(sel_Purpose);
+            var lab_Purpose = document.createElement('div');
+            lab_Purpose.innerHTML = 'Purpose';
+            lab_Purpose.className = 'filterlabel';
+            div_Purpose.appendChild(lab_Purpose);
+            var reset_Purpose = document.createElement('div');
+            reset_Purpose.innerHTML = 'clear filter';
+            reset_Purpose.className = 'filterlabel';
+            reset_Purpose.onclick = function() {
+                var options = document.getElementById("sel_Purpose").options;
+                for (var i=0; i < options.length; i++) {
+                    options[i].selected = false;
+                }
+                filterFunc();
+            };
+            div_Purpose.appendChild(reset_Purpose);
+        </script>
+    </body>
+</html>
